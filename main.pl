@@ -7,21 +7,37 @@ indent(I) :-
   succ(I1, I),
   indent(I1).
 
-dfs(A, A, _, [A], 0).
-dfs(A, B, V, [A|P], S) :-
-  distance(A, C, Sd),
-  not(member(C, V)),
-  length(V, I),
+pathsum([_|[]], 0).
+pathsum([A|[B|P]], S) :-
+  distance(A, B, Sd),
+  pathsum([B|P], S1),
+  plus(S1, Sd, S).
+
+dfs(A, [A|_], [A]).
+dfs(B, [A|V], [A|P]) :-
+  distance(A, C, _),
+  \+ member(C, [A|V]),
+  length([A|V], I),
   indent(I),
-  write(C),
-  write('\n'),
-  dfs(C, B, [C|V], P, S1),
-  plus(Sd, S1, S).
+  write(C), nl,
+  dfs(B, [C|[A|V]], P).
 
 dfs(A, B, P, S) :-
-  write(A),
-  write('\n'),
-  dfs(A, B, [A], P, S), !.
+  write(A), nl,
+  dfs(B, [A], P), !,
+  pathsum(P, S).
+
+consed(A, B, [B|A]).
+bfs(A, [[A|V]|_], P) :- reverse([A|V], P).
+bfs(B, [V|R], P) :-
+  V = [A|_],
+  findall(X, (distance(A, X, _), \+ member(X, V)), T),
+  maplist(consed(V), T, V1),
+  append(R, V1, Q1),
+  bfs(B, Q1, P).
+bfs(A, B, P, S) :-
+  bfs(B, [[A]], P),
+  pathsum(P, S).
 
 distance1( vilnius       , brest           ,  531 ).
 distance1( vitebsk       , brest           ,  638 ).
