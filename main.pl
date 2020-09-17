@@ -49,8 +49,11 @@ variant(  8 , vilnius       , odessa          ).
 variant(  9 , brest         , kazan           ).
 variant( 10 , kharkiv       , nizhny_novgorod ).
 
-variant_formula(D, M, V) :-
+variant_number_formula(D, M, V) :-
   plus(D, M, S),
   divmod(S, 10, _, T),
   succ(T, V).
 
+my_birthday(4, 5).
+my_variant_number(V) :- my_birthday(D, M), variant_number_formula(D, M, V).
+my_variant(A, B) :- my_variant_number(V), variant(V, A, B).
