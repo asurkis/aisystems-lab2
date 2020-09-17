@@ -86,10 +86,7 @@ indent(I) :-
   succ(I1, I),
   indent(I1).
 
-dfs(A, A, V, [A], 0) :-
-  length(V, I), 
-  indent(I), 
-  write('Found solution!\n').
+dfs(A, A, _, [A], _).
 dfs(A, B, V, [A|P], S) :-
   distance(A, C, Sd),
   not(member(C, V)),
