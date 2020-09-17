@@ -1,3 +1,28 @@
+distance(A, B, W) :- distance1(A, B, W).
+distance(A, B, W) :- distance1(B, A, W).
+
+indent(0).
+indent(I) :-
+  write('  '),
+  succ(I1, I),
+  indent(I1).
+
+dfs(A, A, _, [A], 0).
+dfs(A, B, V, [A|P], S) :-
+  distance(A, C, Sd),
+  not(member(C, V)),
+  length(V, I),
+  indent(I),
+  write(C),
+  write('\n'),
+  dfs(C, B, [C|V], P, S1),
+  plus(Sd, S1, S).
+
+dfs(A, B, P, S) :-
+  write(A),
+  write('\n'),
+  dfs(A, B, [A], P, S), !.
+
 distance1( vilnius       , brest           ,  531 ).
 distance1( vitebsk       , brest           ,  638 ).
 distance1( vitebsk       , vilnius         ,  360 ).
@@ -37,31 +62,6 @@ distance1( yaroslavl     , voronezh        ,  739 ).
 distance1( yaroslavl     , minsk           ,  940 ).
 distance1( ufa           , kazan           ,  525 ).
 distance1( ufa           , samara          ,  461 ).
-
-distance(A, B, W) :- distance1(A, B, W).
-distance(A, B, W) :- distance1(B, A, W).
-
-indent(0).
-indent(I) :-
-  write('  '),
-  succ(I1, I),
-  indent(I1).
-
-dfs(A, A, _, [A], 0).
-dfs(A, B, V, [A|P], S) :-
-  distance(A, C, Sd),
-  not(member(C, V)),
-  length(V, I),
-  indent(I),
-  write(C),
-  write('\n'),
-  dfs(C, B, [C|V], P, S1),
-  plus(Sd, S1, S).
-
-dfs(A, B, P, S) :-
-  write(A),
-  write('\n'),
-  dfs(A, B, [A], P, S), !.
 
 variant(  1 , murmansk      , odessa          ).
 variant(  2 , st_petersburg , zhitomir        ).
