@@ -47,7 +47,7 @@ indent(I) :-
   succ(I1, I),
   indent(I1).
 
-dfs(A, A, _, [A], _).
+dfs(A, A, _, [A], 0).
 dfs(A, B, V, [A|P], S) :-
   distance(A, C, Sd),
   not(member(C, V)),
@@ -57,18 +57,11 @@ dfs(A, B, V, [A|P], S) :-
   write('\n'),
   dfs(C, B, [C|V], P, S1),
   plus(Sd, S1, S).
-start_dfs(A, B, P, S) :-
+
+dfs(A, B, P, S) :-
   write(A),
   write('\n'),
-  dfs(A, B, [A], P, S), !,
-  write('\nPath is: '),
-  write(P),
-  write('\nSum is: '),
-  write(S),
-  length(P, L),
-  write('\nLen is: '),
-  write(L),
-  write('\n').
+  dfs(A, B, [A], P, S), !.
 
 variant(  1 , murmansk      , odessa          ).
 variant(  2 , st_petersburg , zhitomir        ).
@@ -92,5 +85,5 @@ my_variant(A, B) :- my_variant_number(V), variant(V, A, B).
 
 my_dfs(P, S) :-
   my_variant(A, B),
-  start_dfs(A, B, P, S).
+  dfs(A, B, P, S).
 
