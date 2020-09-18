@@ -15,14 +15,13 @@ pathsum([A|[B|P]], S) :-
 
 consed(A, B, [B|A]).
 bfs(A, [[A|V]|_], P) :- reverse([A|V], P).
-bfs(B, [V|Q], P) :-
-  V = [A|_],
+bfs(B, [[A|V]|Q], P) :-
   findall(X, (distance(A, X, _),
-    \+ member(X, V)), T),
+    \+ member(X, [A|V])), T),
   write(A),
   write(' -> '),
   write(T), nl,
-  maplist(consed(V), T, V1),
+  maplist(consed([A|V]), T, V1),
   append(Q, V1, Q1),
   bfs(B, Q1, P).
 bfs(A, B, P, S) :-
@@ -59,18 +58,41 @@ dfs_lim(A, B, P, S, D) :-
   dfs_lim(B, [A], P, D), !,
   pathsum(P, S).
 
-dfs_iterative(A, B, P, S, D) :- dfs_lim(A, B, P, S, D).
-dfs_iterative(A, B, P, S, D) :- succ(D, D1), dfs_iterative(A, B, P, S, D1).
+dfs_iterative(A, B, P, S, D) :-
+  dfs_lim(A, B, P, S, D).
+dfs_iterative(A, B, P, S, D) :-
+  succ(D, D1),
+  dfs_iterative(A, B, P, S, D1).
+
+bds([[A|Va]|_], Qb, P) :-
+  member([A|Vb], Qb),
+  reverse([A|Va], Var),
+  append(Var, Vb, P).
+bds([[A|Va]|Qa], [[B|Vb]|Qb], P) :-
+  findall(X, (distance(A, X, _), \+ member(X, [A|Va])), Ta),
+  findall(X, (distance(B, X, _), \+ member(X, [B|Vb])), Tb),
+  write(A),
+  write(' -> '),
+  write(Ta), nl,
+  write(B),
+  write(' <- '),
+  write(Tb), nl, nl,
+  maplist(consed([A|Va]), Ta, Va1),
+  maplist(consed([B|Vb]), Tb, Vb1),
+  append(Qa, Va1, Qa1),
+  append(Qb, Vb1, Qb1),
+  bds(Qa1, Qb1, P).
+
+bds(A, B, P, S) :-
+  bds([[A]], [[B]], P), !,
+  pathsum(P, S).
 
 my_variant(A, B) :- my_variant_number(V), variant(V, A, B).
 my_bfs(P, S) :- my_variant(A, B), bfs(A, B, P, S).
 my_dfs(P, S) :- my_variant(A, B), dfs(A, B, P, S).
-my_dfs_lim(P, S, D) :-
-  my_variant(A, B),
-  dfs_lim(A, B, P, S, D).
-my_dfs_iterative(P, S) :-
-  my_variant(A, B),
-  dfs_iterative(A, B, P, S, 0).
+my_dfs_lim(P, S, D) :- my_variant(A, B), dfs_lim(A, B, P, S, D).
+my_dfs_iterative(P, S) :- my_variant(A, B), dfs_iterative(A, B, P, S, 0).
+my_bds(P, S) :- my_variant(A, B), bds(A, B, P, S).
 
 distance1( vilnius       , brest           ,  531 ).
 distance1( vitebsk       , brest           ,  638 ).
