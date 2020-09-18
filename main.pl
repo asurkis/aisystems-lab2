@@ -43,6 +43,10 @@ bfs(A, B, P, S) :-
   bfs(B, [[A]], P), !,
   pathsum(P, S).
 
+my_variant(A, B) :- my_variant_number(V), variant(V, A, B).
+my_dfs(P, S) :- my_variant(A, B), dfs(A, B, P, S).
+my_bfs(P, S) :- my_variant(A, B), bfs(A, B, P, S).
+
 distance1( vilnius       , brest           ,  531 ).
 distance1( vitebsk       , brest           ,  638 ).
 distance1( vitebsk       , vilnius         ,  360 ).
@@ -101,7 +105,4 @@ variant_number_formula(D, M, V) :-
 
 my_birthday(4, 5).
 my_variant_number(V) :- my_birthday(D, M), variant_number_formula(D, M, V).
-my_variant(A, B) :- my_variant_number(V), variant(V, A, B).
 
-my_dfs(P, S) :- my_variant(A, B), dfs(A, B, P, S).
-my_bfs(P, S) :- my_variant(A, B), bfs(A, B, P, S).
