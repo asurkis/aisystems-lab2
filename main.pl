@@ -9,8 +9,8 @@ indent(I) :-
   succ(I1, I),
   indent(I1).
 
-pathsum([_|[]], 0).
-pathsum([A|[B|P]], S) :-
+pathsum([_], 0).
+pathsum([A,B|P], S) :-
   distance(A, B, Sd),
   pathsum([B|P], S1),
   plus(S1, Sd, S).
@@ -37,7 +37,7 @@ dfs(B, [A|V], [A|P]) :-
   length([A|V], I),
   indent(I),
   write(C), nl,
-  dfs(B, [C|[A|V]], P).
+  dfs(B, [C,A|V], P).
 
 dfs(A, B, P, S) :-
   write(A), nl,
@@ -53,7 +53,7 @@ dfs_lim(B, [A|V], [A|P], D) :-
   indent(I),
   write(C), nl,
   succ(D1, D),
-  dfs_lim(B, [C|[A|V]], P, D1).
+  dfs_lim(B, [C,A|V], P, D1).
 
 dfs_lim(A, B, P, S, D) :-
   write(A), nl,
@@ -90,25 +90,57 @@ bds(A, B, P, S) :-
   bds([[A]], [[B]], P), !,
   pathsum(P, S).
 
+extract_min([E], E, []).
+extract_min([[A|Ta],[B|Tb]|T], [C|Tc], [[B|Tb]|T1]) :-
+  A =< B, extract_min([[A|Ta]|T], [C|Tc], T1).
+extract_min([[A|Ta],[B|Tb]|T], [C|Tc], [[A|Ta]|T1]) :-
+  B < A, extract_min([[B|Tb]|T], [C|Tc], T1).
+
 gfs(A, [A|_], [A]).
 gfs(B, [A|V], [A|P]) :-
-  findall(X, (
+  findall([X, C], (
     distance(A, C, _),
     estimated(B, C, X),
     \+ member(C, [A|V])), T),
-  sort(T, [M|_]),
-  estimated(B, A1, M),
-  distance(A, A1, _),
-  \+ member(A1, [A|V]),
+  extract_min(T, [_, A1], _),
   length([A|V], I),
   indent(I),
   write(A1), nl,
-  gfs(B, [A1|[A|V]], P).
+  gfs(B, [A1,A|V], P).
 
 gfs(A, B, P, S) :-
   write(A), nl,
   gfs(B, [A], P), !,
   pathsum(P, S).
+
+astar_predecessor(P, [S, A], [S,[A|P]]).
+astar(A, [[_,[A|V]]|_], _, P, S) :-
+  reverse([A|V], P),
+  pathsum(P, S).
+astar(B, [[Sa,[A|V]]|Q], M, P, S) :-
+  findall([X, C], (
+    distance(A, C, Dc),
+    \+ member(C, M),
+    estimated(B, A, Ea),
+    estimated(B, C, Ec),
+    plus(Da, Ea, Sa),
+    plus(Da, Dc, Sc),
+    plus(Sc, Ec, X)), T),
+  maplist(astar_predecessor([A|V]), T, Q1),
+  append(Q, Q1, Q2),
+  extract_min(Q2, [Sa1,[A1|V1]], Q3),
+  write(A),
+  write(' ('),
+  write(Sa),
+  write(') -> '),
+  write(A1),
+  write(' ('),
+  write(Sa1),
+  write(')\n'),
+  astar(B, [[Sa1,[A1|V1]]|Q3], [A1|M], P, S).
+astar(A, B, P, S) :-
+  estimated(A, B, Ea),
+  astar(B, [[Ea,[A]]], [A], P, S), !.
 
 my_variant(A, B) :- my_variant_number(V), variant(V, A, B).
 my_bfs(P, S) :- my_variant(A, B), bfs(A, B, P, S).
@@ -117,6 +149,7 @@ my_dfs_lim(P, S, D) :- my_variant(A, B), dfs_lim(A, B, P, S, D).
 my_dfs_iterative(P, S) :- my_variant(A, B), dfs_iterative(A, B, P, S).
 my_bds(P, S) :- my_variant(A, B), bds(A, B, P, S).
 my_gfs(P, S) :- my_variant(A, B), gfs(A, B, P, S).
+my_astar(P, S) :- my_variant(A, B), astar(A, B, P, S).
 
 distance1( vilnius       , brest           ,  531 ).
 distance1( vitebsk       , brest           ,  638 ).
