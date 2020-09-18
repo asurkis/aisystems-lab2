@@ -13,20 +13,6 @@ pathsum([A|[B|P]], S) :-
   pathsum([B|P], S1),
   plus(S1, Sd, S).
 
-dfs(A, [A|_], [A]).
-dfs(B, [A|V], [A|P]) :-
-  distance(A, C, _),
-  \+ member(C, [A|V]),
-  length([A|V], I),
-  indent(I),
-  write(C), nl,
-  dfs(B, [C|[A|V]], P).
-
-dfs(A, B, P, S) :-
-  write(A), nl,
-  dfs(B, [A], P), !,
-  pathsum(P, S).
-
 consed(A, B, [B|A]).
 bfs(A, [[A|V]|_], P) :- reverse([A|V], P).
 bfs(B, [V|Q], P) :-
@@ -43,9 +29,48 @@ bfs(A, B, P, S) :-
   bfs(B, [[A]], P), !,
   pathsum(P, S).
 
+dfs(A, [A|_], [A]).
+dfs(B, [A|V], [A|P]) :-
+  distance(A, C, _),
+  \+ member(C, [A|V]),
+  length([A|V], I),
+  indent(I),
+  write(C), nl,
+  dfs(B, [C|[A|V]], P).
+
+dfs(A, B, P, S) :-
+  write(A), nl,
+  dfs(B, [A], P), !,
+  pathsum(P, S).
+
+dfs_lim(A, [A|_], [A], D) :- D > 0 .
+dfs_lim(B, [A|V], [A|P], D) :-
+  D > 0,
+  distance(A, C, _),
+  \+ member(C, [A|V]),
+  length([A|V], I),
+  indent(I),
+  write(C), nl,
+  succ(D1, D),
+  dfs_lim(B, [C|[A|V]], P, D1).
+
+dfs_lim(A, B, P, S, D) :-
+  write(A), nl,
+  dfs_lim(B, [A], P, D), !,
+  pathsum(P, S).
+
+dfs_iterative(A, B, P, S, D) :- dfs_lim(A, B, P, S, D).
+dfs_iterative(A, B, P, S, D) :- succ(D, D1), dfs_iterative(A, B, P, S, D1).
+
 my_variant(A, B) :- my_variant_number(V), variant(V, A, B).
-my_dfs(P, S) :- my_variant(A, B), dfs(A, B, P, S).
 my_bfs(P, S) :- my_variant(A, B), bfs(A, B, P, S).
+my_dfs(P, S) :- my_variant(A, B), dfs(A, B, P, S).
+my_dfs_lim(P, S, D) :-
+  my_variant(A, B),
+  dfs_lim(A, B, P, S, D).
+my_dfs_iterative(P, S) :-
+  my_variant(A, B),
+  dfs_iterative(A, B, P, S, 0).
 
 distance1( vilnius       , brest           ,  531 ).
 distance1( vitebsk       , brest           ,  638 ).
