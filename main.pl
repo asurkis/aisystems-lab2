@@ -29,14 +29,18 @@ dfs(A, B, P, S) :-
 
 consed(A, B, [B|A]).
 bfs(A, [[A|V]|_], P) :- reverse([A|V], P).
-bfs(B, [V|R], P) :-
+bfs(B, [V|Q], P) :-
   V = [A|_],
-  findall(X, (distance(A, X, _), \+ member(X, V)), T),
+  findall(X, (distance(A, X, _),
+    \+ member(X, V)), T),
+  write(A),
+  write(' -> '),
+  write(T), nl,
   maplist(consed(V), T, V1),
-  append(R, V1, Q1),
+  append(Q, V1, Q1),
   bfs(B, Q1, P).
 bfs(A, B, P, S) :-
-  bfs(B, [[A]], P),
+  bfs(B, [[A]], P), !,
   pathsum(P, S).
 
 distance1( vilnius       , brest           ,  531 ).
@@ -99,7 +103,5 @@ my_birthday(4, 5).
 my_variant_number(V) :- my_birthday(D, M), variant_number_formula(D, M, V).
 my_variant(A, B) :- my_variant_number(V), variant(V, A, B).
 
-my_dfs(P, S) :-
-  my_variant(A, B),
-  dfs(A, B, P, S).
-
+my_dfs(P, S) :- my_variant(A, B), dfs(A, B, P, S).
+my_bfs(P, S) :- my_variant(A, B), bfs(A, B, P, S).
