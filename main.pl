@@ -1,5 +1,7 @@
 distance(A, B, W) :- distance1(A, B, W).
 distance(A, B, W) :- distance1(B, A, W).
+estimated(A, B, W) :- estimated1(A, B, W).
+estimated(A, B, W) :- estimated1(B, A, W).
 
 indent(0).
 indent(I) :-
@@ -63,6 +65,7 @@ dfs_iterative(A, B, P, S, D) :-
 dfs_iterative(A, B, P, S, D) :-
   succ(D, D1),
   dfs_iterative(A, B, P, S, D1).
+dfs_iterative(A, B, P, S) :- dfs_iterative(A, B, P, S, 0), !.
 
 bds([[A|Va]|_], Qb, P) :-
   member([A|Vb], Qb),
@@ -87,12 +90,33 @@ bds(A, B, P, S) :-
   bds([[A]], [[B]], P), !,
   pathsum(P, S).
 
+gfs(A, [A|_], [A]).
+gfs(B, [A|V], [A|P]) :-
+  findall(X, (
+    distance(A, C, _),
+    estimated(B, C, X),
+    \+ member(C, [A|V])), T),
+  sort(T, [M|_]),
+  estimated(B, A1, M),
+  distance(A, A1, _),
+  \+ member(A1, [A|V]),
+  length([A|V], I),
+  indent(I),
+  write(A1), nl,
+  gfs(B, [A1|[A|V]], P).
+
+gfs(A, B, P, S) :-
+  write(A), nl,
+  gfs(B, [A], P), !,
+  pathsum(P, S).
+
 my_variant(A, B) :- my_variant_number(V), variant(V, A, B).
 my_bfs(P, S) :- my_variant(A, B), bfs(A, B, P, S).
 my_dfs(P, S) :- my_variant(A, B), dfs(A, B, P, S).
 my_dfs_lim(P, S, D) :- my_variant(A, B), dfs_lim(A, B, P, S, D).
-my_dfs_iterative(P, S) :- my_variant(A, B), dfs_iterative(A, B, P, S, 0).
+my_dfs_iterative(P, S) :- my_variant(A, B), dfs_iterative(A, B, P, S).
 my_bds(P, S) :- my_variant(A, B), bds(A, B, P, S).
+my_gfs(P, S) :- my_variant(A, B), gfs(A, B, P, S).
 
 distance1( vilnius       , brest           ,  531 ).
 distance1( vitebsk       , brest           ,  638 ).
@@ -133,6 +157,34 @@ distance1( yaroslavl     , voronezh        ,  739 ).
 distance1( yaroslavl     , minsk           ,  940 ).
 distance1( ufa           , kazan           ,  525 ).
 distance1( ufa           , samara          ,  461 ).
+
+estimated1( nizhny_novgorod , brest           , 1391 ).
+estimated1( nizhny_novgorod , vilnius         , 1189 ).
+estimated1( nizhny_novgorod , vitebsk         ,  863 ).
+estimated1( nizhny_novgorod , volgograd       ,  848 ).
+estimated1( nizhny_novgorod , voronezh        ,  606 ).
+estimated1( nizhny_novgorod , daugavpils      , 1081 ).
+estimated1( nizhny_novgorod , donetsk         , 1015 ).
+estimated1( nizhny_novgorod , zhitomir        , 1218 ).
+estimated1( nizhny_novgorod , kazan           ,  328 ).
+estimated1( nizhny_novgorod , kaliningrad     , 1483 ).
+estimated1( nizhny_novgorod , kaunas          , 1267 ).
+estimated1( nizhny_novgorod , kyiv            , 1104 ).
+estimated1( nizhny_novgorod , kishinev        , 1466 ).
+estimated1( nizhny_novgorod , minsk           , 1077 ).
+estimated1( nizhny_novgorod , moscow          ,  401 ).
+estimated1( nizhny_novgorod , murmansk        , 1508 ).
+estimated1( nizhny_novgorod , nizhny_novgorod ,    0 ).
+estimated1( nizhny_novgorod , odessa          , 1425 ).
+estimated1( nizhny_novgorod , oryol           ,  632 ).
+estimated1( nizhny_novgorod , riga            , 1214 ).
+estimated1( nizhny_novgorod , st_petersburg   ,  896 ).
+estimated1( nizhny_novgorod , samara          ,  524 ).
+estimated1( nizhny_novgorod , simferopol      , 1437 ).
+estimated1( nizhny_novgorod , tallinn         , 1185 ).
+estimated1( nizhny_novgorod , ufa             ,  771 ).
+estimated1( nizhny_novgorod , kharkiv         ,  872 ).
+estimated1( nizhny_novgorod , yaroslavl       ,  287 ).
 
 variant(  1 , murmansk      , odessa          ).
 variant(  2 , st_petersburg , zhitomir        ).
